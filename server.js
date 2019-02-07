@@ -50,17 +50,19 @@ app.get("/scrape", function(req, res) {
       var $ = cheerio.load(response.data);
       // With cheerio, find each p-tag with the "title" class
       // (i: iterator or index. element: the current element) -- always include the index first
-      $("div.l-grid--item").each(function(index, element) {
+      $("div.m-standard-hero--container").each(function(index, element) {
   
-        var title = $(element).find("a").attr("title");
-        var link = $(element).find("a").attr("href");
-        var image = $(element).find("img").attr("src");
+        var title = $(element).find("article").find("a").attr("title");
+        var link = $(element).find("phoenix-super-link").attr("href");
+        var image = $(element).find("picture").find("img").attr("src");
+        var author = $(element).find("ul").find("a").text();
   
         db.scrapedArticles.insert(
           {
             title: title,
             link: link,
-            image: image
+            image: image,
+            author: author
             }, function(err, inserted) {
               if (err) {
                 console.log(err);
