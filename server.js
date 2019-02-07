@@ -76,8 +76,24 @@ app.get("/scrape", function(req, res) {
     });
   
 });
+//html route for handlebars index page
+app.get("/", function(req, res) {
+        
+    res.render("index")
+ });
+
+
+app.get("/scrape", function(req, res) {
+  db.scrapedArticles.find({}, function(error, found) {
+    if (error) {
+      console.log(error);
+    } else {
+      res.json(found);
+    }
+  })
+});
 
 // Listen on port 3000
 app.listen(3000, function() {
     console.log("App running on port 3000 :)");
-  });
+});
