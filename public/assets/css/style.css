@@ -2,3 +2,26 @@
     width: 8%;
     margin: 0;
 }
+
+.jumbotron {
+    background-image: url("../images/morocco.png");
+    opacity: 0.8;
+}
+
+
+body {
+    background-image: url("../images/morocco-blue.png");
+}
+
+h1, h4 {
+    color: black;
+}
+
+
+
+.fixed-bottom { 
+    width:100%; 
+    background-color: snow; 
+    padding: 15px 0;
+    text-align: center;
+}
