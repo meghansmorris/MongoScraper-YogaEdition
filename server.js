@@ -32,7 +32,7 @@ var db = mongojs(databaseUrl, collections);
 db.on("error", function(error) {
   console.log("Database Error:", error);
 });
-
+//route to get all data from the collection as a json
 app.get("/all", function(req,res) {
     db.scrapedArticles.find({}, function(err, data) {
       if (err) {
@@ -42,6 +42,39 @@ app.get("/all", function(req,res) {
         res.json(data);
       }
     })
+});
+//route to scrape the data from the yoga journal site
+app.get("/scrape", function(req, res) { 
+    axios.get("https://www.yogajournal.com/").then(function(response) {
+    // Load the HTML into cheerio and save it to a variable
+      var $ = cheerio.load(response.data);
+      // With cheerio, find each p-tag with the "title" class
+      // (i: iterator or index. element: the current element) -- always include the index first
+      $("div.l-grid--item").each(function(index, element) {
+  
+        // Save the text of the element in a "title" variable
+        var title = $(element).find("a").attr("title");
+  
+        // In the currently selected element, look at its child elements (i.e., its a-tags),
+        // then save the values for any "href" attributes that the child elements may have
+        var link = $(element).find("a").attr("href");
+  
+        db.scrapedArticles.insert(
+          {
+            title: title,
+            link: link
+            }, function(err, inserted) {
+              if (err) {
+                console.log(err);
+              } else {
+                console.log(inserted);
+              }
+            })
+      });
+  
+      res.send("Scrape action kicked off!");
+    });
+  
 });
 
 // Listen on port 3000
