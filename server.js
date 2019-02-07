@@ -52,17 +52,15 @@ app.get("/scrape", function(req, res) {
       // (i: iterator or index. element: the current element) -- always include the index first
       $("div.l-grid--item").each(function(index, element) {
   
-        // Save the text of the element in a "title" variable
         var title = $(element).find("a").attr("title");
-  
-        // In the currently selected element, look at its child elements (i.e., its a-tags),
-        // then save the values for any "href" attributes that the child elements may have
         var link = $(element).find("a").attr("href");
+        var image = $(element).find("img").attr("src");
   
         db.scrapedArticles.insert(
           {
             title: title,
-            link: link
+            link: link,
+            image: image
             }, function(err, inserted) {
               if (err) {
                 console.log(err);
