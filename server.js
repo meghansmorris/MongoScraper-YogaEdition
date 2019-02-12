@@ -3,12 +3,18 @@ var express = require("express");
 var mongojs = require("mongojs");
 var axios = require("axios");
 var cheerio = require("cheerio");
+var logger = require("morgan");
+var mongoose = require("mongoose");
+
+var db = require("./models");
 
 // Initialize Express
 var app = express();
 
 // Set up a static folder (public) for our web app
 app.use(express.static("public"));
+// Use morgan logger for logging requests
+app.use(logger("dev"));
 
 // Parse request body as JSON
 app.use(express.urlencoded({ extended: true }));
@@ -22,11 +28,14 @@ app.set("view engine", "handlebars");
 
 // Database configuration
 // Save the URL of our database as well as the name of our collection
-var databaseUrl = "yogascrape";
-var collections = ["scrapedArticles"];
+// var databaseUrl = "yogascrape";
+// var collections = ["scrapedArticles"];
 
-// Use mongojs to hook the database to the db variable
-var db = mongojs(databaseUrl, collections);
+// Connect to the Mongo DB
+mongoose.connect("mongodb://localhost/yogascrape", { useNewUrlParser: true });
+
+// // Use mongojs to hook the database to the db variable
+// var db = mongojs(databaseUrl, collections);
 
 // This makes sure that any errors are logged if mongodb runs into an issue
 db.on("error", function(error) {
