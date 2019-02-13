@@ -1,12 +1,14 @@
 // Dependencies
 var express = require("express");
-var mongojs = require("mongojs");
+//var mongojs = require("mongojs");
 var axios = require("axios");
 var cheerio = require("cheerio");
 var logger = require("morgan");
 var mongoose = require("mongoose");
 
 var db = require("./models");
+
+var PORT = process.env.PORT || 3000;
 
 // Initialize Express
 var app = express();
@@ -37,13 +39,14 @@ mongoose.connect("mongodb://localhost/yogascrape", { useNewUrlParser: true });
 // // Use mongojs to hook the database to the db variable
 // var db = mongojs(databaseUrl, collections);
 
-// This makes sure that any errors are logged if mongodb runs into an issue
-db.on("error", function(error) {
-  console.log("Database Error:", error);
-});
+// // This makes sure that any errors are logged if mongodb runs into an issue
+// db.on("error", function(error) {
+//   console.log("Database Error:", error);
+// });
+
 //route to get all data from the collection as a json
 app.get("/all", function(req,res) {
-    db.scrapedArticles.find({}, function(err, data) {
+    db.Article.find({}, function(err, data) {
       if (err) {
         console.log(err);
   
@@ -52,6 +55,7 @@ app.get("/all", function(req,res) {
       }
     })
 });
+
 //route to scrape the data from the yoga journal site
 app.get("/scrape", function(req, res) { 
     axios.get("https://www.yogajournal.com/").then(function(response) {
@@ -60,49 +64,79 @@ app.get("/scrape", function(req, res) {
       // With cheerio, find each p-tag with the "title" class
       // (i: iterator or index. element: the current element) -- always include the index first
       $("div.m-standard-hero--container").each(function(index, element) {
-  
-        var title = $(element).find("article").find("a").attr("title");
-        var link = $(element).find("phoenix-super-link").attr("href");
-        var image = $(element).find("picture").find("img").attr("src");
-        var author = $(element).find("ul").find("a").text();
-  
-        db.scrapedArticles.insert(
-          {
-            title: title,
-            link: link,
-            image: image,
-            author: author
-            }, function(err, inserted) {
-              if (err) {
-                console.log(err);
-              } else {
-                console.log(inserted);
-              }
-            })
-      });
-  
-      res.send("Scrape action kicked off!");
-    });
-  
-});
-//html route for handlebars index page
-app.get("/", function(req, res) {
         
+        var result = {};
+
+        result.title = $(this)
+          .find("article")
+          .find("a")
+          .attr("title");
+        result.link = $(this)
+          .find("phoenix-super-link")
+          .attr("href");
+        result.image = $(this)
+          .find("picture")
+          .find("img")
+          .attr("src");
+        result.author = $(this)
+          .find("ul")
+          .find("a")
+          .text();
+  
+        db.Article.create(result)
+          .then(function(dbscrapedArticle) {
+            console.log(dbscrapedArticle);
+          })
+          .catch(function(err) {
+            console.log(err);
+          })
+      });
+      res.send("New yoga articles scraped!");
+    });
+});
+
+//html route for handlebars index page
+app.get("/", function(req, res) {    
     res.render("index")
  });
 
+//get all the articles from the db
+app.get("/articles", function(req, res) {
+  db.Article.find({})
+    .then(function(dbscrapedArticle) {
+      res.json(dbscrapedArticle);
+    })
+    .catch(function(err) {
+      res.json(err);
+    })
+});
 
-app.get("/scrape", function(req, res) {
-  db.scrapedArticles.find({}, function(error, found) {
-    if (error) {
-      console.log(error);
-    } else {
-      res.json(found);
-    }
-  })
+//find a specific aritcle by id and populate it with the note
+app.get("/articles/:id", function(req, res) {
+  db.Article.findOne({_id: req.params.id})
+    .populate("note")
+    .then(function(dbscrapedArticle) {
+      res.json(dbscrapedArticle)
+    })
+    .catch(function(err) {
+      res.json(err);
+    })
+});
+
+app.post("/articles/:id", function(req, res) {
+  db.Note.create(req.body)
+    .then(function(dbNote) {
+      return db.scrapedArticles.findOneAndUpdate({_id: req.params.id}, {note: dbNote._id}, {new: true});
+    })
+    .then(function(dbscrapedArticle) {
+      res.json(dbscrapedArticle);
+    })
+    .catch(function(err) {
+      res.json(err);
+    })
 });
 
 // Listen on port 3000
-app.listen(3000, function() {
-    console.log("App running on port 3000 :)");
+app.listen(PORT, function() {
+    console.log("App running on port" + PORT + " :)");
 });

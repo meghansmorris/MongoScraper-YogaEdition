@@ -16,9 +16,9 @@ var ArticleSchema = new Schema({
       required: true
   },
   image: {
-      data: Buffer,
-      contentType: String,
-      required: true
+      type: String,
+    //   data: Buffer,
+    //   contentType: String,
   },
   author: {
       type: String,
