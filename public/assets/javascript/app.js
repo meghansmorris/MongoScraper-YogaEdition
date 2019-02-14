@@ -1,31 +1,47 @@
+$(document).ready(function() {
+    var data;
+    function renderArticles() {
+        console.log("inside render articles")
+        $.getJSON("/articles", function(data) {
+            data = data;
+            
+            console.log("global data", data);
+            $("#articleList").empty();
+            //make this it's own function and give it data -- call from inside getJSON, pass it data
 
-$.getJSON("/articles", function(data) {
-    console.log(data);
-    $("#articleList").empty();
-
-    data.forEach(function(data) {        
-        var articleContainer = $("#articleList");
+            data.forEach(function(data) {        
+                var articleContainer = $("#articleList");
+                
+                var card = $(`<div class="card"></div>`)
+                var image = $(`<img src=${data.image} class="card-img-top">`);
+                var cardBody = $(`<div data-id=${data._id} class="card-body">`);
+                var cardTitle = $(`<h5 class="card-title">${data.title}</h5>`);
+                var cardAuthor = $(`<p class="card-text">${data.author}</p>`);
+                var cardLink = $(`<p class="card-text"> https://www.yogajournal.com${data.link}</p>`); //button instead of p
         
-        var card = $(`<div class="card"></div>`)
-        var image = $(`<img src=${data.image} class="card-img-top">`);
-        var cardBody = $(`<div data-id=${data._id} class="card-body">`);
-        var cardTitle = $(`<h5 class="card-title">${data.title}</h5>`);
-        var cardAuthor = $(`<p class="card-text">${data.author}</p>`);
-        var cardLink = $(`<p class="card-text">${data.link}</p>`);
+                articleContainer.append(card);
+                card.append(image);
+                card.append(cardBody);
+                card.append(cardTitle);
+                card.append(cardAuthor);
+                card.append(cardLink);
+            });
+         //when you do the scrape, you call the getJSON function and articlelist - if same, no new, if not equal, math new articles
+        });  
+    }
 
-        articleContainer.append(card);
-        card.append(image);
-        card.append(cardBody);
-        card.append(cardTitle);
-        card.append(cardAuthor);
-        card.append(cardLink);
-    });
+    renderArticles();
+
+$(".scrapenew").on("click", function() {
+    console.log("inside scrape button");
+  $.get("/scrape", function(data) {
+      console.log(data);
+
+  }).then(function() {
+      renderArticles()
+  })
+});
 
 });
 
-// $("#scrapebtn").on("click", function() {
-//     $.getJSON("/scrape", function(data) {
-//         displayArticles(data);
-//     })
-// });
-
+//clear deletes database -- clearing the articles

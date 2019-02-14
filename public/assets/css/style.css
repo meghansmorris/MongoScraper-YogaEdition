@@ -8,6 +8,11 @@
     opacity: 0.8;
 }
 
+.subhead, .lead {
+    color: lightgrey;
+    
+}
+
 
 body {
     background-image: url("../images/morocco-blue.png");
