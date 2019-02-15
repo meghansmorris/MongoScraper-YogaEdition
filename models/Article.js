@@ -18,15 +18,14 @@ var ArticleSchema = new Schema({
   },
   image: {
       type: String,
-    //   data: Buffer,
-    //   contentType: String,
   },
   author: {
       type: String,
       required: false
   },
   saved: {
-    //boolean -- like burger
+      type: Boolean,
+      default: false
   },
   // `note` is an object that stores a Note id
   // The ref property links the ObjectId to the Note model

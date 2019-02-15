@@ -5,12 +5,22 @@
 
 .jumbotron {
     background-image: url("../images/morocco.png");
-    opacity: 0.8;
+    opacity: 0.6;
 }
 
-.subhead, .lead {
-    color: lightgrey;
-    
+.lead {
+    color: #395267;
+    font-family: 'Lato', sans-serif;
+    text-align: right;    
+}
+
+.subhead {
+    font-size: 40px;
+}
+
+.btn-large {
+    margin: 10px;
+    position: relative;
 }
 
 
@@ -20,6 +30,12 @@ body {
 
 h1, h4 {
     color: black;
+    font-family: 'Satisfy', cursive;
+    text-align: center;
+}
+
+h1 {
+    font-size: 60px;
 }
 
 .card {

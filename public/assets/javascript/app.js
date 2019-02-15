@@ -17,30 +17,47 @@ $(document).ready(function() {
                 var cardBody = $(`<div data-id=${data._id} class="card-body">`);
                 var cardTitle = $(`<h5 class="card-title">${data.title}</h5>`);
                 var cardAuthor = $(`<p class="card-text">${data.author}</p>`);
-                var cardLink = $(`<p class="card-text"> https://www.yogajournal.com${data.link}</p>`); //button instead of p
-        
+                var cardLink = $(`<a class="btn btn-large btn-secondary articleLink" href="https://www.yogajournal.com${data.link}">
+                                <i class="fas fa-link fa-clickable" aria-hidden="true"></i></a>`);
+                var favoritebtn = $(`<a class="btn btn-large btn-danger favorite" href="#">
+                                <i class="far fa-heart fa-clickable" aria-hidden="true"></i></a>`);
+                        
                 articleContainer.append(card);
                 card.append(image);
                 card.append(cardBody);
                 card.append(cardTitle);
                 card.append(cardAuthor);
                 card.append(cardLink);
+                card.append(favoritebtn);
             });
-         //when you do the scrape, you call the getJSON function and articlelist - if same, no new, if not equal, math new articles
+         // add functionality -- when you do the scrape, you call the getJSON function and articlelist - if same, no new, if not equal, math new articles
         });  
     }
 
     renderArticles();
 
-$(".scrapenew").on("click", function() {
-    console.log("inside scrape button");
-  $.get("/scrape", function(data) {
-      console.log(data);
+    $(".scrapenew").on("click", function() {
+        console.log("inside scrape button");
+        $.get("/scrape", function(data) {
+            console.log(data);
 
-  }).then(function() {
-      renderArticles()
-  })
-});
+        }).then(function() {
+            renderArticles()
+        })
+    });
+
+    $("")
+
+    // $(".savebtn").on("click", function() {
+    //     console.log("inside save button");
+    //     $.get("/saved", function(data) {
+    //         console.log(data);
+
+    //     }).then(function() {
+    //         renderArticles()
+    //     })
+    // });
+
 
 });
 
