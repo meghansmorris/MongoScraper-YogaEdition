@@ -111,29 +111,140 @@ app.get("/articles", function(req, res) {
     })
 });
 
-//find a specific aritcle by id and populate it with the note
-app.get("/articles/:id", function(req, res) {
-  db.Article.findOne({_id: req.params.id})
-    .populate("note")
-    .then(function(dbscrapedArticle) {
-      res.json(dbscrapedArticle)
-    })
-    .catch(function(err) {
-      res.json(err);
-    })
+// // Route for grabbing a specific Article by id, populate it with it's note
+// app.get("/articles/:id", function(req, res) {
+
+// db.Article
+// .findOne({ _id: req.params.id })
+// .populate("note")
+// .then(function(dbArticle) {
+//   res.json(dbArticle);
+// })
+// .catch(function(err) {
+//   res.json(err);
+// });
+// });
+
+// // Route for saving/updating an Article's associated Note
+// app.post("/articles/:id", function(req, res) {
+
+// db.Note
+// .create(req.body)
+// .then(function(dbNote) {
+//   return db.Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
+// })
+// .then(function(dbArticle) {
+//   res.json(dbArticle);
+// })
+// .catch(function(err) {
+//   res.json(err);
+// });
+// });
+
+// // Route for saving/updating article to be saved
+// app.put("/saved/:id", function(req, res) {
+
+//   db.Article
+//   .findByIdAndUpdate({ _id: req.params.id }, { $set: { isSaved: true }})
+//   .then(function(dbArticle) {
+//     res.json(dbArticle);
+//   })
+//   .catch(function(err) {
+//     res.json(err);
+//   });
+// });
+
+// // Route for getting saved article
+// app.get("/saved", function(req, res) {
+
+//   db.Article
+//   .find({ isSaved: true })
+//   .then(function(dbArticle) {
+//     res.json(dbArticle);
+//   })
+//   .catch(function(err) {
+//     res.json(err);
+//   });
+// });
+
+// // Route for deleting/updating saved article
+// app.put("/delete/:id", function(req, res) {
+
+//   db.Article
+//   .findByIdAndUpdate({ _id: req.params.id }, { $set: { isSaved: false }})
+//   .then(function(dbArticle) {
+//     res.json(dbArticle);
+//   })
+//   .catch(function(err) {
+//     res.json(err);
+//   });
+// });
+
+//get route to update 'saved' boolean to true
+app.get('/saved/:id', (req,res) => {
+  db.Article
+    .update({_id: req.params.id},{saved: true})
+    .then(result=> res.redirect('/'))
+    .catch(err => res.json(err));
 });
 
-app.post("/articles/:id", function(req, res) {
-  db.Note.create(req.body)
-    .then(function(dbNote) {
-      return db.scrapedArticles.findOneAndUpdate({_id: req.params.id}, {note: dbNote._id}, {new: true});
+//get route to render savedArticles.handlebars and populate with saved articles
+app.get('/saved', (req, res) => {
+  db.Article
+    .find({})
+    .then(result => res.render('saved', {articles:result}))
+    .catch(err => res.json(err));
+});
+
+//delete route to remove an article from savedArticles
+app.delete('/deleteArticle/:id', function(req,res){
+  db.Article
+    .remove({_id: req.params.id})
+    .then(result => res.json(result))
+    .catch(err => res.json(err));
+});
+
+app.get('/saved', (req, res) => {
+  db.Article
+    .find({saved: true})
+    .populate('notes')
+    .then(articles => {
+      res.render('saved', {articles});
     })
-    .then(function(dbscrapedArticle) {
-      res.json(dbscrapedArticle);
-    })
-    .catch(function(err) {
-      res.json(err);
-    })
+    .catch(err => console.log(err));
+});
+
+app.put('/saved', (req, res) => {
+
+  let id = req.body.id;
+  let isSaved = req.body.saved;
+  db.Article.updateOne(
+    { _id: id },
+    { saved: isSaved },
+    (err, doc) => {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log(doc);
+      }
+    }
+   )
+   .then(() => {
+     res.send(true);
+   });
+ 
+});
+
+app.delete('/saved', (req, res) => {
+
+  let id = req.body.id;
+  db.Article.deleteOne({
+    _id: id 
+  }, (err) => {
+    res.send(true);
+    if (err) throw err
+  });
+
 });
 
 // Listen on port 3000

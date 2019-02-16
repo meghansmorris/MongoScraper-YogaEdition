@@ -19,7 +19,7 @@ $(document).ready(function() {
                 var cardAuthor = $(`<p class="card-text">${data.author}</p>`);
                 var cardLink = $(`<a class="btn btn-large btn-secondary articleLink" href="https://www.yogajournal.com${data.link}">
                                 <i class="fas fa-link fa-clickable" aria-hidden="true"></i></a>`);
-                var favoritebtn = $(`<a class="btn btn-large btn-danger favorite" href="#">
+                var favoritebtn = $(`<a class="btn btn-large btn-danger favorite">
                                 <i class="far fa-heart fa-clickable" aria-hidden="true"></i></a>`);
                         
                 articleContainer.append(card);
@@ -46,19 +46,43 @@ $(document).ready(function() {
         })
     });
 
-    $("")
+    $(document).on('click', '#clearbtn', function(e) {
+        e.preventDefault();
+        $.ajax({
+          url: '/scrape',
+          type: 'delete',
+          success: function(res) {
+            if (res){
+              console.log('scraped articles cleared');
+              $('.scraped-articles').empty();
+            }
+          },
+          error: function(err) {
+            console.log(err);
+          }
+        });
+      });
+    
+    $(document).on('click', '.favorite', function(e) {
+    e.preventDefault();
+    var id = $(this).data('id');  
+    $.ajax({
+        url: '/saved',
+        type: 'put',
+        data: { id: id, saved: true },
+        success: function(res) {
+        if (res) {
+            console.log('article saved');
+            alert('Article Favorited');
+        }
+        },
+        error: function(err) {
+        console.log(err);
+        }
+    });
+    });
 
-    // $(".savebtn").on("click", function() {
-    //     console.log("inside save button");
-    //     $.get("/saved", function(data) {
-    //         console.log(data);
-
-    //     }).then(function() {
-    //         renderArticles()
-    //     })
-    // });
-
-
+    
 });
 
 //clear deletes database -- clearing the articles
