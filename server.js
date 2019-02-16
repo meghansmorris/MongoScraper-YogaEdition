@@ -36,14 +36,6 @@ app.set("view engine", "handlebars");
 // Connect to the Mongo DB
 mongoose.connect("mongodb://localhost/yogascrape", { useNewUrlParser: true });
 
-// // Use mongojs to hook the database to the db variable
-// var db = mongojs(databaseUrl, collections);
-
-// // This makes sure that any errors are logged if mongodb runs into an issue
-// db.on("error", function(error) {
-//   console.log("Database Error:", error);
-// });
-
 //route to get all data from the collection as a json
 app.get("/all", function(req,res) {
     db.Article.find({}, function(err, data) {
@@ -110,6 +102,79 @@ app.get("/articles", function(req, res) {
       res.json(err);
     })
 });
+
+//get route to update 'saved' boolean to true
+app.get('/saved/:id', (req,res) => {
+  db.Article
+    .update({_id: req.params.id},{saved: true})
+    .then(result=> res.redirect('/'))
+    .catch(err => res.json(err));
+});
+
+//get route to render savedArticles.handlebars and populate with saved articles
+app.get('/saved', (req, res) => {
+  db.Article
+    .find({})
+    .then(result => res.render('saved', {articles:result}))
+    .catch(err => res.json(err));
+});
+
+//delete route to remove an article from savedArticles
+app.delete('/deleteArticle/:id', function(req,res){
+  db.Article
+    .remove({_id: req.params.id})
+    .then(result => res.json(result))
+    .catch(err => res.json(err));
+});
+
+app.get('/saved', (req, res) => {
+  db.Article
+    .find({saved: true})
+    .populate('notes')
+    .then(articles => {
+      res.render('saved', {articles});
+    })
+    .catch(err => console.log(err));
+});
+
+app.put('/saved', (req, res) => {
+
+  let id = req.body.id;
+  let saved = req.body.saved;
+  db.Article.updateOne(
+    { _id: id },
+    { saved: saved },
+    (err, doc) => {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log(doc);
+      }
+    }
+   )
+   .then(() => {
+     res.send(true);
+   });
+ 
+});
+
+app.delete('/saved', (req, res) => {
+
+  let id = req.body.id;
+  db.Article.deleteOne({
+    _id: id 
+  }, (err) => {
+    res.send(true);
+    if (err) throw err
+  });
+
+});
+
+// Listen on port 3000
+app.listen(PORT, function() {
+    console.log("App running on port" + PORT + " :)");
+});
+
 
 // // Route for grabbing a specific Article by id, populate it with it's note
 // app.get("/articles/:id", function(req, res) {
@@ -179,75 +244,3 @@ app.get("/articles", function(req, res) {
 //     res.json(err);
 //   });
 // });
-
-//get route to update 'saved' boolean to true
-app.get('/saved/:id', (req,res) => {
-  db.Article
-    .update({_id: req.params.id},{saved: true})
-    .then(result=> res.redirect('/'))
-    .catch(err => res.json(err));
-});
-
-//get route to render savedArticles.handlebars and populate with saved articles
-app.get('/saved', (req, res) => {
-  db.Article
-    .find({})
-    .then(result => res.render('saved', {articles:result}))
-    .catch(err => res.json(err));
-});
-
-//delete route to remove an article from savedArticles
-app.delete('/deleteArticle/:id', function(req,res){
-  db.Article
-    .remove({_id: req.params.id})
-    .then(result => res.json(result))
-    .catch(err => res.json(err));
-});
-
-app.get('/saved', (req, res) => {
-  db.Article
-    .find({saved: true})
-    .populate('notes')
-    .then(articles => {
-      res.render('saved', {articles});
-    })
-    .catch(err => console.log(err));
-});
-
-app.put('/saved', (req, res) => {
-
-  let id = req.body.id;
-  let isSaved = req.body.saved;
-  db.Article.updateOne(
-    { _id: id },
-    { saved: isSaved },
-    (err, doc) => {
-      if (err) {
-        console.log(err)
-      } else {
-        console.log(doc);
-      }
-    }
-   )
-   .then(() => {
-     res.send(true);
-   });
- 
-});
-
-app.delete('/saved', (req, res) => {
-
-  let id = req.body.id;
-  db.Article.deleteOne({
-    _id: id 
-  }, (err) => {
-    res.send(true);
-    if (err) throw err
-  });
-
-});
-
-// Listen on port 3000
-app.listen(PORT, function() {
-    console.log("App running on port" + PORT + " :)");
-});

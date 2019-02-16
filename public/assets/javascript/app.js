@@ -46,22 +46,22 @@ $(document).ready(function() {
         })
     });
 
-    $(document).on('click', '#clearbtn', function(e) {
-        e.preventDefault();
-        $.ajax({
-          url: '/scrape',
-          type: 'delete',
-          success: function(res) {
-            if (res){
-              console.log('scraped articles cleared');
-              $('.scraped-articles').empty();
-            }
-          },
-          error: function(err) {
-            console.log(err);
-          }
-        });
-      });
+    // $(document).on('click', '#clearbtn', function(e) {
+    //     e.preventDefault();
+    //     $.ajax({
+    //       url: '/scrape',
+    //       type: 'delete',
+    //       success: function(res) {
+    //         if (res){
+    //           console.log('scraped articles cleared');
+    //           $('.scraped-articles').empty();
+    //         }
+    //       },
+    //       error: function(err) {
+    //         console.log(err);
+    //       }
+    //     });
+    //   });
     
     $(document).on('click', '.favorite', function(e) {
     e.preventDefault();
@@ -69,7 +69,7 @@ $(document).ready(function() {
     $.ajax({
         url: '/saved',
         type: 'put',
-        data: { id: id, saved: true },
+        data: { _id: id, saved: true },
         success: function(res) {
         if (res) {
             console.log('article saved');
