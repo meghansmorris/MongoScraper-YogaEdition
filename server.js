@@ -34,7 +34,9 @@ app.set("view engine", "handlebars");
 // var collections = ["scrapedArticles"];
 
 // Connect to the Mongo DB
-mongoose.connect("mongodb://localhost/yogascrape", { useNewUrlParser: true });
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/yogascrape';
+mongoose.connect(MONGODB_URI);
+// mongoose.connect("mongodb://localhost/yogascrape", { useNewUrlParser: true });
 
 //route to get all data from the collection as a json
 app.get("/all", function(req,res) {
