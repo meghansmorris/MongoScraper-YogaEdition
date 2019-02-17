@@ -63,6 +63,7 @@ $(document).ready(function() {
     //     });
     //   });
     
+    
     $(document).on('click', '.favorite', function(e) {
     e.preventDefault();
     var id = $(this).data('id');  

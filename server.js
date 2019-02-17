@@ -103,72 +103,39 @@ app.get("/articles", function(req, res) {
     })
 });
 
-//get route to update 'saved' boolean to true
-app.get('/saved/:id', (req,res) => {
-  db.Article
-    .update({_id: req.params.id},{saved: true})
-    .then(result=> res.redirect('/'))
+app.get("/saved", function(req, res) { //route to save articles
+  db.Article.find({saved: true})
+    .then(result => res.render('saved', {saved: result}))
     .catch(err => res.json(err));
 });
 
-//get route to render savedArticles.handlebars and populate with saved articles
-app.get('/saved', (req, res) => {
-  db.Article
-    .find({})
-    .then(result => res.render('saved', {articles:result}))
-    .catch(err => res.json(err));
-});
+// Route for saving/updating article to be saved
+app.put("/saved/:id", function(req, res) {
 
-//delete route to remove an article from savedArticles
-app.delete('/deleteArticle/:id', function(req,res){
-  db.Article
-    .remove({_id: req.params.id})
-    .then(result => res.json(result))
-    .catch(err => res.json(err));
-});
-
-app.get('/saved', (req, res) => {
-  db.Article
-    .find({saved: true})
-    .populate('notes')
-    .then(articles => {
-      res.render('saved', {articles});
-    })
-    .catch(err => console.log(err));
-});
-
-app.put('/saved', (req, res) => {
-
-  let id = req.body.id;
-  let saved = req.body.saved;
-  db.Article.updateOne(
-    { _id: id },
-    { saved: saved },
-    (err, doc) => {
-      if (err) {
-        console.log(err)
-      } else {
-        console.log(doc);
-      }
+  db.Article.update({
+    saved: true
+  },
+  {
+    where: {
+      id: req.params.id
     }
-   )
-   .then(() => {
-     res.send(true);
-   });
- 
+  }).then(function(dbArticles) {
+    res.json("saved");
+  })
 });
 
-app.delete('/saved', (req, res) => {
+// // Route for saving/updating article to be saved
+// app.put("/saved/:id", function(req, res) {
 
-  let id = req.body.id;
-  db.Article.deleteOne({
-    _id: id 
-  }, (err) => {
-    res.send(true);
-    if (err) throw err
-  });
-
-});
+//   db.Article
+//   .findOneAndUpdate({ _id: req.params.id }, { saved: req.params.saved})
+//   .then(function(dbArticle) {
+//     res.json(dbArticle);
+//   })
+//   .catch(function(err) {
+//     res.json(err);
+//   });
+// });
 
 // Listen on port 3000
 app.listen(PORT, function() {
@@ -232,15 +199,4 @@ app.listen(PORT, function() {
 //   });
 // });
 
-// // Route for deleting/updating saved article
-// app.put("/delete/:id", function(req, res) {
 
-//   db.Article
-//   .findByIdAndUpdate({ _id: req.params.id }, { $set: { isSaved: false }})
-//   .then(function(dbArticle) {
-//     res.json(dbArticle);
-//   })
-//   .catch(function(err) {
-//     res.json(err);
-//   });
-// });
