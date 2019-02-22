@@ -1,3 +1,10 @@
+//To add:
+//let the user know how many new articles were scraped after scrape button is clicked
+//favorite articles only show on favorite page
+//on favorite page -- allow the user to remove the article and add a note
+//create a note column on the favorites page to hold the notes once entered
+//clear articles function to clear out the current articles -- but still keep the saved
+
 // Dependencies
 var express = require("express");
 //var mongojs = require("mongojs");
@@ -90,8 +97,11 @@ app.get("/scrape", function(req, res) {
 });
 
 //html route for handlebars index page
-app.get("/", function(req, res) {    
-    res.render("index")
+app.get("/", function(req, res) {   
+  db.Article.find({ saved: false }) 
+    .then(function (dbArticles) {
+      res.render("index", {articles: dbArticles})
+    })
  });
 
 //get all the articles from the db
@@ -105,10 +115,12 @@ app.get("/articles", function(req, res) {
     })
 });
 
-app.get("/saved", function(req, res) { //route to save articles
+//html route for handlebars saved page
+app.get("/saved", function(req, res) {
   db.Article.find({saved: true})
-    .then(result => res.render('saved', {saved: result}))
-    .catch(err => res.json(err));
+    .then(function(dbArticles) {
+      res.render("saved", { articles: dbArticles})
+    })
 });
 
 // Route for saving/updating article to be saved
@@ -122,83 +134,11 @@ app.put("/saved/:id", function(req, res) {
       id: req.params.id
     }
   }).then(function(dbArticles) {
-    res.json("saved");
+    res.json("saved", {articles: dbArticles});
   })
 });
-
-// // Route for saving/updating article to be saved
-// app.put("/saved/:id", function(req, res) {
-
-//   db.Article
-//   .findOneAndUpdate({ _id: req.params.id }, { saved: req.params.saved})
-//   .then(function(dbArticle) {
-//     res.json(dbArticle);
-//   })
-//   .catch(function(err) {
-//     res.json(err);
-//   });
-// });
 
 // Listen on port 3000
 app.listen(PORT, function() {
     console.log("App running on port" + PORT + " :)");
 });
-
-
-// // Route for grabbing a specific Article by id, populate it with it's note
-// app.get("/articles/:id", function(req, res) {
-
-// db.Article
-// .findOne({ _id: req.params.id })
-// .populate("note")
-// .then(function(dbArticle) {
-//   res.json(dbArticle);
-// })
-// .catch(function(err) {
-//   res.json(err);
-// });
-// });
-
-// // Route for saving/updating an Article's associated Note
-// app.post("/articles/:id", function(req, res) {
-
-// db.Note
-// .create(req.body)
-// .then(function(dbNote) {
-//   return db.Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
-// })
-// .then(function(dbArticle) {
-//   res.json(dbArticle);
-// })
-// .catch(function(err) {
-//   res.json(err);
-// });
-// });
-
-// // Route for saving/updating article to be saved
-// app.put("/saved/:id", function(req, res) {
-
-//   db.Article
-//   .findByIdAndUpdate({ _id: req.params.id }, { $set: { isSaved: true }})
-//   .then(function(dbArticle) {
-//     res.json(dbArticle);
-//   })
-//   .catch(function(err) {
-//     res.json(err);
-//   });
-// });
-
-// // Route for getting saved article
-// app.get("/saved", function(req, res) {
-
-//   db.Article
-//   .find({ isSaved: true })
-//   .then(function(dbArticle) {
-//     res.json(dbArticle);
-//   })
-//   .catch(function(err) {
-//     res.json(err);
-//   });
-// });
-
-
